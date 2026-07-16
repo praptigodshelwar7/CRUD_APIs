@@ -35,7 +35,8 @@ $ curl -i -X POST http://localhost:3000/tasks -H "Content-Type: application/json
 
 ## Swagger screenshot
 
-<< PASTE YOUR SCREENSHOT HERE >>
+<img width="1061" height="664" alt="image" src="https://github.com/user-attachments/assets/ef52d93f-01cd-490d-a392-42ae8ccc4ba3" />
+
 
 ## The mortality experiment (optional)
 
