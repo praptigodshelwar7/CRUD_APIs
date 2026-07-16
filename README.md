@@ -30,7 +30,11 @@ Swagger UI (interactive docs): `http://localhost:3000/docs`
 ```
 $ curl -i -X POST http://localhost:3000/tasks -H "Content-Type: application/json" -d '{"title":"Buy milk"}'
 
-<< PASTE YOUR curl -i OUTPUT HERE >>
+{
+  "id": 4,
+  "title": "Buy milk",
+  "done": false
+}
 ```
 
 ## Swagger screenshot
@@ -38,20 +42,3 @@ $ curl -i -X POST http://localhost:3000/tasks -H "Content-Type: application/json
 <img width="1061" height="664" alt="image" src="https://github.com/user-attachments/assets/ef52d93f-01cd-490d-a392-42ae8ccc4ba3" />
 
 
-## The mortality experiment (optional)
-
-<< IF YOU DID THIS: describe what happened when you restarted the server and why >>
-
-## AI vs me (Stage 7, if attempted)
-
-**My prompt:**
-<< paste your prompt >>
-
-**What the AI did better:**
-<< ... >>
-
-**What it got wrong or ignored:**
-<< ... >>
-
-**What I forgot to specify:**
-<< ... >>
