@@ -1,0 +1,146 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Auth API — W4 Assignment",
+    "description": "Secure authentication API using Supabase Auth + JWT Bearer tokens.\n\n**How to use protected routes:**\n1. Call `POST /auth/login` and copy the `access_token` from the response.\n2. Click the **Authorize 🔒** button above and paste the token.\n3. Click **Authorize**, then close the dialog.\n4. All protected routes will now send your token automatically.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local development server" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Paste the access_token returned by POST /auth/login"
+      }
+    },
+    "schemas": {
+      "AuthBody": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email":    { "type": "string", "format": "email", "example": "user@example.com" },
+          "password": { "type": "string", "minLength": 6,    "example": "password123" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Sign up — create a new user account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Account created successfully" },
+          "400": { "description": "Missing email or password", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Log in — authenticate and receive JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful — copy the access_token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token":  { "type": "string" },
+                    "refresh_token": { "type": "string" },
+                    "token_type":    { "type": "string", "example": "Bearer" },
+                    "user":          { "type": "object" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing fields" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Log out — invalidate the current session",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Logged out successfully" },
+          "401": { "description": "Missing or invalid token" }
+        }
+      }
+    },
+    "/public/info": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Public info — no authentication required",
+        "responses": {
+          "200": {
+            "description": "Public message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message":   { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protected/profile": {
+      "get": {
+        "tags": ["Protected"],
+        "summary": "User profile — requires valid Bearer token",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Verified user profile data" },
+          "401": { "description": "Missing, invalid, or expired token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/protected/dashboard": {
+      "get": {
+        "tags": ["Protected"],
+        "summary": "User dashboard — requires valid Bearer token",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Dashboard data for authenticated user" },
+          "401": { "description": "Missing, invalid, or expired token" }
+        }
+      }
+    }
+  }
+}
