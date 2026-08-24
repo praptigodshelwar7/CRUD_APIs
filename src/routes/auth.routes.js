@@ -26,7 +26,8 @@ router.post("/signup", async (req, res) => {
   }
 
   return res.status(201).json({
-    message: "Account created successfully. Check your email to confirm.",
+    message: "Account created successfully. Check your inbox and confirm your email before logging in.",
+    email_confirmation_required: true,
     user: {
       id:         data.user.id,
       email:      data.user.email,
