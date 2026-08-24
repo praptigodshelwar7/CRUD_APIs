@@ -3,14 +3,23 @@ const taskService = require("../services/task.service");
 
 const router = express.Router();
 
+// GET /tasks
+// Optional query params (all work together):
+//   ?search=<text>   — SQL LIKE filter on title
+//   ?done=true|false — filter by completion status
+//   ?sort=title      — alphabetical ordering
 router.get("/", async (req, res, next) => {
   try {
-    res.json(await taskService.listTasks());
+    const { search, done, sort } = req.query;
+    const doneFilter =
+      done === "true" ? true : done === "false" ? false : undefined;
+    res.json(await taskService.listTasks({ search, done: doneFilter, sort }));
   } catch (err) {
     next(err);
   }
 });
 
+// GET /tasks/:id
 router.get("/:id", async (req, res, next) => {
   try {
     const task = await taskService.getTask(Number(req.params.id));
@@ -23,6 +32,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+// POST /tasks
 router.post("/", async (req, res, next) => {
   try {
     const { title } = req.body || {};
@@ -33,6 +43,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// PUT /tasks/:id
 router.put("/:id", async (req, res, next) => {
   try {
     const { title, done } = req.body || {};
@@ -43,6 +54,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
+// DELETE /tasks/:id
 router.delete("/:id", async (req, res, next) => {
   try {
     await taskService.deleteTask(Number(req.params.id));

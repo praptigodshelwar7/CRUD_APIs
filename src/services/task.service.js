@@ -2,8 +2,10 @@ const repository = require("../repositories");
 
 // Validation/business-rules live here, once, regardless of storage backend.
 
-async function listTasks() {
-  return repository.getAll();
+// Optional query filters (search, done, sort) are passed straight through to
+// the repository — only the SQLite repo acts on them; others ignore extras.
+async function listTasks(filters = {}) {
+  return repository.getAll(filters);
 }
 
 async function getTask(id) {
@@ -57,4 +59,15 @@ async function deleteTask(id) {
   }
 }
 
-module.exports = { listTasks, getTask, createTask, updateTask, deleteTask };
+// Optional extra — only works when repository implements getStats()
+async function getTaskStats() {
+  if (typeof repository.getStats !== "function") {
+    const err = new Error("Stats not supported by the current storage backend");
+    err.status = 501;
+    throw err;
+  }
+  return repository.getStats();
+}
+
+module.exports = { listTasks, getTask, createTask, updateTask, deleteTask, getTaskStats };
+
