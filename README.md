@@ -140,7 +140,9 @@ DELETE FROM tasks WHERE done = 1;
 
 ## Screenshot of DB Browser
 
-> _Open `tasks.db` in DB Browser for SQLite and paste a screenshot here._
+The `tasks` table viewed in DB Browser for SQLite, showing the 3 seeded rows:
+
+![DB Browser for SQLite — tasks table](docs/db-browser-screenshot.jpg)
 
 ## Service/routes unchanged — honestly
 
