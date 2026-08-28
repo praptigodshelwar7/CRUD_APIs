@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Auth API — W4 Assignment",
+    "title": "Auth API — W4/W7 Assignment",
     "description": "Secure authentication API using Supabase Auth + JWT Bearer tokens.\n\n**How to use protected routes:**\n1. Call `POST /auth/login` and copy the `access_token` from the response.\n2. Click the **Authorize 🔒** button above and paste the token.\n3. Click **Authorize**, then close the dialog.\n4. All protected routes will now send your token automatically.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "servers": [
     { "url": "http://localhost:3000", "description": "Local development server" }
@@ -30,6 +30,41 @@
         "type": "object",
         "properties": {
           "error": { "type": "string" }
+        }
+      },
+      "ClassifyRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "example": "Review Q3 budget proposal with the finance team"
+          }
+        }
+      },
+      "ClassifyResponse": {
+        "type": "object",
+        "required": ["category", "confidence", "reason"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["work", "personal", "other"],
+            "description": "The task category determined by the LLM",
+            "example": "work"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "How confident the model is in its classification",
+            "example": "high"
+          },
+          "reason": {
+            "type": "string",
+            "description": "One-sentence explanation of the classification",
+            "example": "The task involves reviewing a financial document in a professional context."
+          }
         }
       }
     }
@@ -139,6 +174,44 @@
         "responses": {
           "200": { "description": "Dashboard data for authenticated user" },
           "401": { "description": "Missing, invalid, or expired token" }
+        }
+      }
+    },
+    "/ai/classify-task": {
+      "post": {
+        "tags": ["AI"],
+        "summary": "Classify task — LLM categorises a task title as work / personal / other",
+        "description": "Sends the task title to an LLM (Mistral via OpenRouter) and returns a validated JSON response. The response is guaranteed to match the schema — if the model returns garbage, the API returns 502 instead of passing it through. The call has an 8-second timeout and up to 3 exponential-backoff retries on transient errors.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClassifyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Classification successful — schema-validated LLM output",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClassifyResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid title field",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Missing or invalid Bearer token",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "502": {
+            "description": "Model returned invalid output or upstream API error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     }

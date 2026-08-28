@@ -6,6 +6,7 @@ const openapiSpec = require("../openapi.json");
 const authRouter      = require("./routes/auth.routes");
 const publicRouter    = require("./routes/public.routes");
 const protectedRouter = require("./routes/protected.routes");
+const aiRouter        = require("./routes/ai.routes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
       "GET  /public/info",
       "GET  /protected/profile",
       "GET  /protected/dashboard",
+      "POST /ai/classify-task",
     ],
   });
 });
@@ -37,6 +39,7 @@ app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.use("/auth",      authRouter);
 app.use("/public",    publicRouter);
 app.use("/protected", protectedRouter);
+app.use("/ai",        aiRouter);
 
 // ── Swagger UI (Stage 5) ──────────────────────────────────────────────────────
 app.use(
